@@ -6,9 +6,7 @@ from aiohttp import web
 from asynctest import Mock
 
 from learning_hub.apis.users_api import UsersAPI
-from learning_hub.auth import JWTAuth
 from learning_hub.usecases.create_user import *
-
 
 CREATE_USER_REQUEST = CreateUserRequest(
     email="example@email.com",
@@ -24,13 +22,6 @@ def create_user():
     create_user = Mock(CreateUser)
     create_user.execute.return_value = CreateUserResponse(USER_ID)
     return create_user
-
-
-@pytest.fixture
-def auth():
-    auth = Mock(JWTAuth)
-    auth.generate_token.return_value = TOKEN
-    return auth
 
 
 @pytest.fixture
@@ -58,3 +49,13 @@ async def test_register_user_should_return_user_id_and_generated_token(mock_requ
     assert response.status == 201
     assert response.content_type == "application/json"
     assert json.loads(response.text) == dict(userId=USER_ID, token=TOKEN)
+
+
+async def test_register_user_should_return_400_if_request_data_is_invalid(mock_request, create_user, auth):
+    message = "Some Error"
+    users_api = UsersAPI()
+    create_user.execute.side_effect = ValueError(message)
+    response = await users_api.register_user(mock_request)
+    assert response.status == 400
+    assert response.content_type == "application/json"
+    assert json.loads(response.text) == dict(errors=[message])

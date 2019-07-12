@@ -6,7 +6,7 @@ from aiohttp import web
 from asynctest import Mock
 
 from learning_hub.apis.users_api import UsersAPI
-from learning_hub.auth import JWTAuthentication
+from learning_hub.auth import JWTAuth
 from learning_hub.usecases.create_user import *
 
 
@@ -28,7 +28,7 @@ def create_user():
 
 @pytest.fixture
 def auth():
-    auth = Mock(JWTAuthentication)
+    auth = Mock(JWTAuth)
     auth.generate_token.return_value = TOKEN
     return auth
 

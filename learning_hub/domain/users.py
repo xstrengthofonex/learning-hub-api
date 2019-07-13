@@ -8,6 +8,8 @@ class User:
     email: str
     username: str
     password: str
+    country: str = ""
+    show_email: str = False
 
 
 class Users(ABC):

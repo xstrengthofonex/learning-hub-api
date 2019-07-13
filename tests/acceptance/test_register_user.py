@@ -1,11 +1,9 @@
-from aiohttp.test_utils import TestClient
-
 EMAIL = "example@email.com"
 USERNAME = "username"
 PASSWORD = "12345678"
 
 
-async def test_register_user(client: TestClient):
+async def test_register_user(client):
     data = dict(email=EMAIL, username=USERNAME, password=PASSWORD)
     response = await client.post("/users", json=data)
     assert response.status == 201

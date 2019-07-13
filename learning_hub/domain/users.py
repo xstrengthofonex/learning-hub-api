@@ -29,13 +29,17 @@ class Users(ABC):
     async def email_exists(self, email: str) -> bool:
         pass
 
+    @abstractmethod
+    async def find_by_email(self, email: str) -> User:
+        pass
+
 
 class UserValidator:
     def __init__(self, users: Users):
         self.users = users
         self.errors = []
 
-    async def validate(self, user: User):
+    async def validate(self, user: User) -> None:
         self.errors = []
         await self.validate_email(user.email)
         await self.validate_username(user.username)
@@ -43,18 +47,18 @@ class UserValidator:
         if self.errors:
             raise ValueError(self.errors)
 
-    async def validate_username(self, username):
+    async def validate_username(self, username: str) -> None:
         if not username:
             self.errors.append("Username is required")
         elif await self.users.username_exists(username):
             self.errors.append("Username already in use")
 
-    async def validate_email(self, email):
+    async def validate_email(self, email: str) -> None:
         if not email:
             self.errors.append("Email is required")
         elif await self.users.email_exists(email):
             self.errors.append("Email already in use")
 
-    async def validate_password(self, password):
+    async def validate_password(self, password: str) -> None:
         if not password:
             self.errors.append("Password is required")

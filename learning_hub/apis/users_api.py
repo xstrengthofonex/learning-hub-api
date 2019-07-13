@@ -30,7 +30,16 @@ class UsersAPI:
             token=token),
             status=201)
 
+    async def login(self, request):
+        users = request.app.get("users")
+        auth = request.app.get("auth")
+        data = await request.json()
+        user = await users.find_by_email(data.get("email", ""))
+        if not user or user.password != data.get("password", ""):
+            return self.create_error_response(["Invalid login credentials"], 400)
+        token = auth.generate_token(user.id)
+        return web.json_response(dict(userId=user.id, token=token))
+
     @staticmethod
     def create_error_response(errors, status):
         return web.json_response(dict(errors=errors), status=status)
-

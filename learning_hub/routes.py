@@ -6,6 +6,7 @@ from learning_hub.usecases.create_user import CreateUser
 
 async def setup_usecases(app):
     users = InMemoryUsers()
+    app["users"] = users
     app["create_user"] = CreateUser(users)
 
 
@@ -14,3 +15,4 @@ async def setup_routes(app):
     users_api = UsersAPI()
     app.router.add_get("/status", status_api)
     app.router.add_post("/users", users_api.register_user)
+    app.router.add_post("/login", users_api.login)

@@ -30,7 +30,7 @@ class Users(ABC):
         pass
 
     @abstractmethod
-    async def find_by_email(self, email: str) -> User:
+    async def find_by_credentials(self, email: str, password: str) -> User:
         pass
 
 

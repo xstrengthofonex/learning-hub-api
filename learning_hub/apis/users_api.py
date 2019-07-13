@@ -34,8 +34,8 @@ class UsersAPI:
         users = request.app.get("users")
         auth = request.app.get("auth")
         data = await request.json()
-        user = await users.find_by_email(data.get("email", ""))
-        if not user or user.password != data.get("password", ""):
+        user = await users.find_by_credentials(data.get("email", ""), data.get("password", ""))
+        if not user:
             return self.create_error_response(["Invalid login credentials"], 400)
         token = auth.generate_token(user.id)
         return web.json_response(dict(userId=user.id, token=token))

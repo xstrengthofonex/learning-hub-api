@@ -86,13 +86,13 @@ async def test_register_user_should_return_400_if_request_data_is_invalid(create
 
 
 async def test_login_should_return_user_id_and_generated_token_if_credentials_match(users, auth):
-    users.find_by_email.return_value = USER
+    users.find_by_credentials.return_value = USER
     mock_request = create_mock_request(data=dict(
         email=EMAIL, password=PASSWORD))
     mock_request.app.get.side_effect = [users, auth]
     users_api = UsersAPI()
     response = await users_api.login(mock_request)
-    users.find_by_email.assert_called_with(EMAIL)
+    users.find_by_credentials.assert_called_with(EMAIL, PASSWORD)
     auth.generate_token.assert_called_with(USER_ID)
     assert response.status == 200
     assert response.content_type == "application/json"
@@ -101,13 +101,13 @@ async def test_login_should_return_user_id_and_generated_token_if_credentials_ma
 
 async def test_login_should_return_400_if_user_does_not_exist(users, auth):
     message = "Invalid login credentials"
-    users.find_by_email.return_value = None
+    users.find_by_credentials.return_value = None
     mock_request = create_mock_request(data=dict(
         email=EMAIL, password=PASSWORD))
     mock_request.app.get.side_effect = [users, auth]
     users_api = UsersAPI()
     response = await users_api.login(mock_request)
-    users.find_by_email.assert_called_with(EMAIL)
+    users.find_by_credentials.assert_called_with(EMAIL, PASSWORD)
     assert response.status == 400
     assert response.content_type == "application/json"
     assert json.loads(response.text) == dict(errors=[message])
@@ -115,13 +115,14 @@ async def test_login_should_return_400_if_user_does_not_exist(users, auth):
 
 async def test_login_should_return_400_if_password_does_not_match(users, auth):
     message = "Invalid login credentials"
-    users.find_by_email.return_value = USER
+    incorrect_password = "incorrect password"
+    users.find_by_credentials.return_value = None
     mock_request = create_mock_request(data=dict(
-        email=EMAIL, password="BadPassword"))
+        email=EMAIL, password=incorrect_password))
     mock_request.app.get.side_effect = [users, auth]
     users_api = UsersAPI()
     response = await users_api.login(mock_request)
-    users.find_by_email.assert_called_with(EMAIL)
+    users.find_by_credentials.assert_called_with(EMAIL, incorrect_password)
     assert response.status == 400
     assert response.content_type == "application/json"
     assert json.loads(response.text) == dict(errors=[message])

@@ -36,6 +36,7 @@ async def test_email_exists_should_return_true(users):
 
 async def test_find_user_by_email(users):
     email = "email"
-    u1 = User(id="1", email=email, username="username", password="password")
+    password = "password"
+    u1 = User(id="1", email=email, username="username", password=password)
     await users.add(u1)
-    assert await users.find_by_email(email) == u1
+    assert await users.find_by_credentials(email, password) == u1

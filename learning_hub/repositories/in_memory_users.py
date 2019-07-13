@@ -19,5 +19,7 @@ class InMemoryUsers(Users):
     async def email_exists(self, email: str) -> bool:
         return any(u.email == email for u in self.users)
 
-    async def find_by_email(self, email: str) -> User:
-        return next((user for user in self.users if user.email == email), None)
+    async def find_by_credentials(self, email: str, password: str) -> User:
+        return next((user for user in self.users if user.email == email
+                     and user.password == password), None)
+

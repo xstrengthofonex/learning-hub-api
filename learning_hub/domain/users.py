@@ -38,7 +38,6 @@ class Users(ABC):
 class UserValidator(Validator):
     def __init__(self, users: Users):
         self.users = users
-        self.errors = []
 
     async def validate_username(self, username: str) -> None:
         self.assert_not_blank(username, "Username is required")

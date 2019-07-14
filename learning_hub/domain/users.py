@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from learning_hub.domain.common import Entity, Validator
+
 
 @dataclass(frozen=True)
-class User:
-    id: str
+class User(Entity):
     email: str
     username: str
     password: str
@@ -34,31 +35,18 @@ class Users(ABC):
         pass
 
 
-class UserValidator:
+class UserValidator(Validator):
     def __init__(self, users: Users):
         self.users = users
         self.errors = []
 
-    async def validate(self, user: User) -> None:
-        self.errors = []
-        await self.validate_email(user.email)
-        await self.validate_username(user.username)
-        await self.validate_password(user.password)
-        if self.errors:
-            raise ValueError(self.errors)
-
     async def validate_username(self, username: str) -> None:
-        if not username:
-            self.errors.append("Username is required")
-        elif await self.users.username_exists(username):
-            self.errors.append("Username already in use")
+        self.assert_not_blank(username, "Username is required")
+        assert await self.users.username_exists(username) is not True, "Username already in use"
 
     async def validate_email(self, email: str) -> None:
-        if not email:
-            self.errors.append("Email is required")
-        elif await self.users.email_exists(email):
-            self.errors.append("Email already in use")
+        self.assert_not_blank(email, "Email is required")
+        assert await self.users.email_exists(email) is not True, "Email already in use"
 
     async def validate_password(self, password: str) -> None:
-        if not password:
-            self.errors.append("Password is required")
+        self.assert_not_blank(password, "Password is required")

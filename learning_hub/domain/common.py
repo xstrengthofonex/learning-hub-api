@@ -34,6 +34,10 @@ class Validator:
     def _get_all_validator_methods(self):
         return [m for m in dir(self) if m.startswith("validate_")]
 
+    @staticmethod
+    def assert_not_blank(attribute, message):
+        assert attribute != "", message
+
 
 class EntityValidator(Validator):
     @staticmethod

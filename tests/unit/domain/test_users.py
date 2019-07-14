@@ -24,21 +24,19 @@ def validator(users):
 async def test_user_validator_does_not_accept_empty_username_password_or_email(validator):
     with pytest.raises(VALIDATION_ERROR) as e:
         await validator.validate(EMPTY_USER)
-    assert str(e.value) == str([
-        "Email is required",
-        "Username is required",
-        "Password is required"])
+    assert all([m in str(e.value) for m in [
+        "Email is required", "Username is required", "Password is required"]])
 
 
 async def test_user_validator_does_not_accept_duplicate_usernames(validator, users):
     users.username_exists.return_value = True
     with pytest.raises(VALIDATION_ERROR) as e:
         await validator.validate(DUPLICATE_USER)
-    assert str(e.value) == str(["Username already in use"])
+    assert "Username already in use" in str(e.value)
 
 
 async def test_user_validator_does_not_accept_duplicate_emails(validator, users):
     users.email_exists.return_value = True
     with pytest.raises(VALIDATION_ERROR) as e:
         await validator.validate(DUPLICATE_USER)
-    assert str(e.value) == str(["Email already in use"])
+    assert "Email already in use" in str(e.value)

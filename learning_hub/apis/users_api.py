@@ -1,10 +1,12 @@
+from typing import List, Dict
+
 from aiohttp import web
 
-from learning_hub.usecases.create_user import CreateUserRequest
+from learning_hub.usecases.create_user import CreateUserRequest, CreateUserResponse
 
 
 class UsersAPI:
-    async def register_user(self, request):
+    async def register_user(self, request: web.Request) -> web.Response:
         create_user = request.app.get("create_user")
         auth = request.app.get("auth")
         data = await request.json()
@@ -17,20 +19,20 @@ class UsersAPI:
             return self.create_error_response(list(e.args), 400)
 
     @staticmethod
-    def create_user_request_from_json(data):
+    def create_user_request_from_json(data: Dict) -> CreateUserRequest:
         return CreateUserRequest(
             email=data.get("email", ""),
             username=data.get("username", ""),
             password=data.get("password", ""))
 
     @staticmethod
-    def create_register_user_response(result, token):
+    def create_register_user_response(result: CreateUserResponse, token: str) -> web.Response:
         return web.json_response(dict(
             userId=result.user_id,
             token=token),
             status=201)
 
-    async def login(self, request):
+    async def login(self, request: web.Request) -> web.Response:
         users = request.app.get("users")
         auth = request.app.get("auth")
         data = await request.json()
@@ -41,5 +43,5 @@ class UsersAPI:
         return web.json_response(dict(userId=user.id, token=token))
 
     @staticmethod
-    def create_error_response(errors, status):
+    def create_error_response(errors: List[str], status: int) -> web.Response:
         return web.json_response(dict(errors=errors), status=status)

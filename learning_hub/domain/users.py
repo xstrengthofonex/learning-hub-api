@@ -15,7 +15,7 @@ class User(Entity):
 
 class Users(ABC):
     @abstractmethod
-    async def add(self, user: User):
+    async def add(self, user: User) -> None:
         pass
 
     @abstractmethod
@@ -36,7 +36,7 @@ class Users(ABC):
 
 
 class UserValidator(Validator):
-    def __init__(self, users: Users):
+    def __init__(self, users: Users) -> None:
         self.users = users
 
     async def validate_username(self, username: str) -> None:

@@ -1,11 +1,13 @@
 from typing import Dict
 
+from aiohttp import web
+
 import settings
 import jwt
 
 
 class JWTAuth:
-    def __init__(self, secret):
+    def __init__(self, secret: str) -> None:
         self.secret = secret
 
     def generate_token(self, user_id) -> str:
@@ -15,5 +17,5 @@ class JWTAuth:
         return jwt.decode(token.encode(), self.secret, algorithms=["HS256"])
 
 
-async def setup_auth(app):
+async def setup_auth(app: web.Application) -> None:
     app["auth"] = JWTAuth(settings.SECRET_KEY)

@@ -38,8 +38,3 @@ class Validator:
     def assert_not_blank(attribute, message):
         assert attribute != "", message
 
-
-class EntityValidator(Validator):
-    @staticmethod
-    async def validate_id(entity_id: str) -> None:
-        assert entity_id != "", "Id cannot be blank"

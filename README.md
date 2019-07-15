@@ -29,12 +29,6 @@ To run all tests, use this commands:
   - If you're not comfortable with TDD then you need to write more acceptance test cases to cover the regression
   - I've used the London-style of TDD which uses mocking for all of the collaborators of the system under test. 
   - You are free to use any style you wish for unit testing.
-- Creating a Usecase
-  - The usecase is the core of the feature you are adding. 
-  - The API handler should parse all relevant information and then delegate to the usecase via a use case request.
-  - The use case should have an execute method that accepts the use case request and returns a usecase response.
-  - The request and response should be frozen dataclasses which are immutable.
-  - Use an in memory repository for testing, but be sure to add methods to an interface. Check to see if an interface or repository already exists.
-- Run all tests
+- Run all tests all the time 
 
   

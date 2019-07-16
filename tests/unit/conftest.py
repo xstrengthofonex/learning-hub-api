@@ -2,7 +2,7 @@ import pytest
 from asynctest import Mock
 
 from learning_hub.auth import JWTAuth
-from learning_hub.usecases.helpers import IdGenerator
+from learning_hub.helpers import IdGenerator
 
 
 @pytest.fixture

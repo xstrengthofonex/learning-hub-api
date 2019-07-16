@@ -2,10 +2,11 @@ from typing import List, Dict
 
 from aiohttp import web
 
+from learning_hub.apis.base_api import BaseAPI
 from learning_hub.usecases.create_user import CreateUserRequest, CreateUserResponse
 
 
-class UsersAPI:
+class UsersAPI(BaseAPI):
     async def register_user(self, request: web.Request) -> web.Response:
         create_user = request.app.get("create_user")
         auth = request.app.get("auth")
@@ -42,6 +43,4 @@ class UsersAPI:
         token = auth.generate_token(user.id)
         return web.json_response(dict(userId=user.id, token=token))
 
-    @staticmethod
-    def create_error_response(errors: List[str], status: int) -> web.Response:
-        return web.json_response(dict(errors=errors), status=status)
+

@@ -2,11 +2,11 @@ import json
 from uuid import uuid4
 
 import pytest
-from aiohttp import web
 from asynctest import Mock
 
 from learning_hub.apis.users_api import UsersAPI
 from learning_hub.usecases.create_user import *
+from tests.unit.apis.conftest import create_mock_request
 
 EMAIL = "example@email.com"
 PASSWORD = "password"
@@ -31,12 +31,6 @@ def create_user():
     create_user = Mock(CreateUser)
     create_user.execute.return_value = CreateUserResponse(USER_ID)
     return create_user
-
-
-def create_mock_request(data):
-    mock_request = Mock(web.Request)
-    mock_request.json.return_value = data
-    return mock_request
 
 
 @pytest.fixture(autouse=True)

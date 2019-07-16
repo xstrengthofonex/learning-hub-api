@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from learning_hub.domain.users import Users, User, UserValidator
-from learning_hub.usecases.helpers import IdGenerator
+from learning_hub.helpers import IdGenerator
 
 
 @dataclass(frozen=True)

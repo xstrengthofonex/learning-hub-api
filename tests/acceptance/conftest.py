@@ -11,3 +11,6 @@ def app(loop):
 @pytest.fixture
 def client(loop, app, aiohttp_client):
     return loop.run_until_complete(aiohttp_client(app))
+
+
+pytest.register_assert_rewrite("tests.acceptance.dsl")

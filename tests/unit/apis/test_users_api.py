@@ -6,17 +6,16 @@ from asynctest import Mock
 
 from learning_hub.apis.users_api import UsersAPI
 from learning_hub.usecases.create_user import *
+from tests.unit.apis.builders import CreateUserRequestBuilder
 from tests.unit.apis.conftest import create_mock_request
 
-EMAIL = "example@email.com"
-PASSWORD = "password"
-USERNAME = "username"
-CREATE_USER_REQUEST = CreateUserRequest(
-    email=EMAIL,
-    username=USERNAME,
-    password=PASSWORD)
+CREATE_USER_REQUEST = CreateUserRequestBuilder().build()
 USER_ID = str(uuid4())
-USER = User(id=USER_ID, email=EMAIL, username=USERNAME, password=PASSWORD)
+USER = User(
+    id=USER_ID,
+    email=CreateUserRequest.email,
+    username=CREATE_USER_REQUEST.username,
+    password=CREATE_USER_REQUEST.password)
 TOKEN = "xxxxx.yyyyy.zzzzz"
 SECRET = "Secret"
 
@@ -82,11 +81,11 @@ async def test_register_user_should_return_400_if_request_data_is_invalid(create
 async def test_login_should_return_user_id_and_generated_token_if_credentials_match(users, auth):
     users.find_by_credentials.return_value = USER
     mock_request = create_mock_request(data=dict(
-        email=EMAIL, password=PASSWORD))
+        email=USER.email, password=USER.password))
     mock_request.app.get.side_effect = [users, auth]
     users_api = UsersAPI()
     response = await users_api.login(mock_request)
-    users.find_by_credentials.assert_called_with(EMAIL, PASSWORD)
+    users.find_by_credentials.assert_called_with(USER.email, USER.password)
     auth.generate_token.assert_called_with(USER_ID)
     assert response.status == 200
     assert response.content_type == "application/json"
@@ -97,11 +96,11 @@ async def test_login_should_return_400_if_user_does_not_exist(users, auth):
     message = "Invalid login credentials"
     users.find_by_credentials.return_value = None
     mock_request = create_mock_request(data=dict(
-        email=EMAIL, password=PASSWORD))
+        email=USER.email, password=USER.password))
     mock_request.app.get.side_effect = [users, auth]
     users_api = UsersAPI()
     response = await users_api.login(mock_request)
-    users.find_by_credentials.assert_called_with(EMAIL, PASSWORD)
+    users.find_by_credentials.assert_called_with(USER.email, USER.password)
     assert response.status == 400
     assert response.content_type == "application/json"
     assert json.loads(response.text) == dict(errors=[message])
@@ -112,11 +111,11 @@ async def test_login_should_return_400_if_password_does_not_match(users, auth):
     incorrect_password = "incorrect password"
     users.find_by_credentials.return_value = None
     mock_request = create_mock_request(data=dict(
-        email=EMAIL, password=incorrect_password))
+        email=USER.email, password=incorrect_password))
     mock_request.app.get.side_effect = [users, auth]
     users_api = UsersAPI()
     response = await users_api.login(mock_request)
-    users.find_by_credentials.assert_called_with(EMAIL, incorrect_password)
+    users.find_by_credentials.assert_called_with(USER.email, incorrect_password)
     assert response.status == 400
     assert response.content_type == "application/json"
     assert json.loads(response.text) == dict(errors=[message])

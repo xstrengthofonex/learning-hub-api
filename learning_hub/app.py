@@ -1,6 +1,7 @@
 from aiohttp import web
 from aiohttp.web_middlewares import middleware
 
+import settings
 from learning_hub.auth import setup_auth, auth_middleware
 from learning_hub.routes import setup_routes
 
@@ -22,4 +23,5 @@ async def create_app() -> web.Application:
 
 
 if __name__ == '__main__':
-    web.run_app(create_app(), port=3000)
+    web.run_app(create_app(), port=settings.PORT)
+

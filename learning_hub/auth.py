@@ -13,11 +13,15 @@ WHITELIST = ["/login", "/users"]
 async def auth_middleware(request: web.Request, handler):
     if request.path not in WHITELIST and request.method == "POST":
         auth = request.app.get("auth")
+        users = request.app.get("users")
         data = await request.json()
         payload = auth.get_payload(data.get("token", ""))
         if not payload:
             return web.json_response(dict(message="Token is not valid"), status=401)
-        request["user_id"] = payload.get("user_id")
+        user_id = payload.get("userId")
+        if not await users.find_by_id(user_id):
+            return web.json_response(dict(message="User does not exist"), status=401)
+        request["user_id"] = user_id
     return await handler(request)
 
 

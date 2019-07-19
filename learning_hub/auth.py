@@ -14,8 +14,8 @@ async def auth_middleware(request: web.Request, handler):
     if request.path not in WHITELIST and request.method == "POST":
         auth = request.app.get("auth")
         users = request.app.get("users")
-        data = await request.json()
-        payload = auth.get_payload(data.get("token", ""))
+        token = request.headers.get("Authorization")
+        payload = auth.get_payload(token.replace("Bearer ", ""))
         if not payload:
             return web.json_response(dict(message="Token is not valid"), status=401)
         user_id = payload.get("userId")

@@ -21,10 +21,10 @@ async def register_user(client, email=EMAIL, username=USERNAME, password=PASSWOR
 
 async def create_learning_path(client, token, title=TITLE, description=DESCRIPTION,
                                categories=CATEGORIES, assignments=ASSIGNMENTS):
-    data = dict(token=token,
-                title=title,
+    data = dict(title=title,
                 description=description,
                 categories=categories,
                 assignments=assignments)
-    return await client.post("/paths", json=data)
+    headers = {'Authorization': f"Bearer {token}"}
+    return await client.post("/paths", headers=headers, json=data)
 

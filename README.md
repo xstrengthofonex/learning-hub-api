@@ -15,6 +15,9 @@ In the project root, run these commands to setup the virtual environment:
 To run all tests, use this commands:
 - pytest 
 
+To run the application, use this command:
+- python -m learning_hub.app
+
 # Contributing to Learning Hub API
 - Checkout a new feature branch: git checkout -b feature-branch-name
 - Write an acceptance test

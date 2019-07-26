@@ -26,3 +26,7 @@ class Participations(ABC):
     @abstractmethod
     async def find_by_id(self, id_: str) -> Participation:
         pass
+
+    @abstractmethod
+    async def find_participations_for_path_id(self, path_id: str) -> List[Participation]:
+        pass

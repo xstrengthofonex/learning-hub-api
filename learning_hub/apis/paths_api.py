@@ -16,6 +16,35 @@ class PathsAPI(BaseAPI):
             return self.create_error_response(list(e.args[0]), 400)
         return web.json_response(dict(pathId=result.path_id), status=201)
 
+    async def get_path(self, request: web.Request) -> web.Response:
+        path_id = request.match_info.get("path_id")
+        paths = request.app.get("paths")
+        participations = request.app.get("participations")
+        path = await paths.find_by_id(path_id)
+        if not path:
+            return web.json_response(dict(message="Learning path not found"), status=404)
+        participants = await participations.find_participations_for_path_id(path_id)
+        return self.create_get_path_response(path, participants)
+
+    @staticmethod
+    def create_get_path_response(path, participants):
+        return web.json_response(dict(
+            id=path.id,
+            author=path.author,
+            title=path.title,
+            created_on=path.created_on.timestamp(),
+            updated_on=path.updated_on.timestamp(),
+            description=path.description,
+            categories=path.categories,
+            participants=len(participants),
+            assignments=[dict(
+                id=a.id,
+                name=a.name,
+                resource=a.resource,
+                instructions=a.instructions)
+                for a in path.assignments],
+            status=200))
+
     @staticmethod
     def create_path_request_from(data, user_id):
         return CreatePathRequest(
@@ -28,3 +57,4 @@ class PathsAPI(BaseAPI):
                 resource=a.get("resource", ""),
                 instructions=a.get("instructions", ""))
                 for a in data.get("assignments", [])])
+

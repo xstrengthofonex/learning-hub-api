@@ -5,10 +5,13 @@ import pytest
 from asynctest import Mock
 
 from learning_hub.apis.paths_api import PathsAPI
+from learning_hub.domain.participations import Participations
+from learning_hub.domain.paths import Paths
 from learning_hub.domain.users import Users, User
 from learning_hub.usecases.create_path import *
 from tests.unit.apis.builders import CreatePathRequestBuilder, CreateAssignmentRequestBuilder
 from tests.unit.apis.conftest import create_mock_request
+from tests.unit.builders import PathBuilder, ParticipationBuilder, AssignmentBuilder
 
 
 USER_ID = str(uuid4())
@@ -27,11 +30,24 @@ CREATE_PATH_REQUEST_DATA = dict(
         name=a.name, resource=a.resource, instructions=a.instructions
     ) for a in CREATE_PATH_REQUEST.assignments])
 PATH_ID = str(uuid4())
+PATH = PathBuilder(id=PATH_ID, author=USER_ID, assignments=[
+    AssignmentBuilder()]).build()
+PARTICIPATION = ParticipationBuilder(path_id=PATH_ID, user_id=USER_ID).build()
 
 
 @pytest.fixture
 def users():
     return Mock(Users)
+
+
+@pytest.fixture
+def paths():
+    return Mock(Paths)
+
+
+@pytest.fixture
+def participations():
+    return Mock(Participations)
 
 
 @pytest.fixture
@@ -69,3 +85,46 @@ async def test_create_path_raises_400_if_request_data_is_invalid(create_path, us
     assert response.status == 400
     assert response.content_type == "application/json"
     assert json.loads(response.text) == dict(errors=[message])
+
+
+async def test_get_path_returns_path_with_id(paths, participations):
+    paths.find_by_id.return_value = PATH
+    participations.find_participations_for_path_id.return_value = [PARTICIPATION]
+    mock_request = create_mock_request()
+    mock_request.app.get.side_effect = [paths, participations]
+    mock_request.match_info.get.return_value = PATH_ID
+    paths_api = PathsAPI()
+
+    response = await paths_api.get_path(mock_request)
+
+    paths.find_by_id.assert_called_with(PATH_ID)
+    assert response.status == 200
+    assert response.content_type == "application/json"
+    result = json.loads(response.text)
+    assignment = PATH.assignments[0]
+    assert result.get("id") == PATH.id
+    assert result.get("title") == PATH.title
+    assert result.get("participants") == 1
+    assert result.get("created_on") == PATH.created_on.timestamp()
+    assert result.get("updated_on") == PATH.updated_on.timestamp()
+    assert result.get("categories") == PATH.categories
+    assert result.get("assignments") == [
+        dict(id=assignment.id, name=assignment.name,
+             resource=assignment.resource, instructions=assignment.instructions)]
+
+
+async def test_get_path_returns_404_if_path_not_found(paths, participations):
+    paths.find_by_id.return_value = None
+    participations.find_participations_for_path_id.return_value = None
+    mock_request = create_mock_request()
+    mock_request.app.get.side_effect = [paths, participations]
+    mock_request.match_info.get.return_value = PATH_ID
+    paths_api = PathsAPI()
+
+    response = await paths_api.get_path(mock_request)
+
+    paths.find_by_id.assert_called_with(PATH_ID)
+    assert response.status == 404
+    assert response.content_type == "application/json"
+    result = json.loads(response.text)
+    assert result.get("message") == "Learning path not found"

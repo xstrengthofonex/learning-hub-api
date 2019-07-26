@@ -24,7 +24,7 @@ class AssignmentBuilder:
 
 @dataclass
 class PathBuilder:
-    author: str
+    author: str = str(uuid4())
     id: str = str(uuid4())
     title: str = "Title"
     description: str = "Some description"

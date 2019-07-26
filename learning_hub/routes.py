@@ -17,6 +17,8 @@ async def setup_usecases(app: web.Application) -> None:
     paths = InMemoryPaths()
     participations = InMemoryParticipations()
     app["users"] = users
+    app["paths"] = paths
+    app["participations"] = participations
     app["create_participation"] = CreateParticipation(participations, paths)
     app["create_user"] = CreateUser(users)
     app["create_path"] = CreatePath(paths)
@@ -31,4 +33,5 @@ async def setup_routes(app: web.Application) -> None:
     app.router.add_post("/users", users_api.register_user)
     app.router.add_post("/login", users_api.login)
     app.router.add_post("/paths", paths_api.create_path)
+    app.router.add_get("/paths/{path_id}", paths_api.get_path)
     app.router.add_post("/participations", participations_api.create_participation)

@@ -14,17 +14,38 @@ ASSIGNMENTS = (dict(
     instructions=ASSIGNMENT_INSTRUCTIONS),)
 
 
-async def register_user(client, email=EMAIL, username=USERNAME, password=PASSWORD):
+async def register_user(client, email=EMAIL, username=USERNAME, password=PASSWORD, status=201):
     data = dict(email=email, username=username, password=password)
-    return await client.post("/users", json=data)
+    response = await client.post("/users", json=data)
+    assert response.status == status
+    assert response.content_type == "application/json"
+    return await response.json()
 
 
 async def create_learning_path(client, token, title=TITLE, description=DESCRIPTION,
-                               categories=CATEGORIES, assignments=ASSIGNMENTS):
+                               categories=CATEGORIES, assignments=ASSIGNMENTS, status=201):
     data = dict(title=title,
                 description=description,
                 categories=categories,
                 assignments=assignments)
     headers = {'Authorization': f"Bearer {token}"}
-    return await client.post("/paths", headers=headers, json=data)
+    response = await client.post("/paths", headers=headers, json=data)
+    assert response.status == status
+    assert response.content_type == "application/json"
+    return await response.json()
 
+
+async def create_participation(client, token, path_id, status=201):
+    headers = {'Authorization': f"Bearer {token}"}
+    response = await client.post("/participations", headers=headers, json=dict(pathId=path_id))
+    assert response.status == status
+    assert response.content_type == "application/json"
+    return await response.json()
+
+
+async def get_learning_path(client, token, path_id, status=200):
+    headers = {'Authorization': f"Bearer {token}"}
+    response = await client.get(f"/paths/{path_id}", headers=headers)
+    assert response.status == status
+    assert response.content_type == "application/json"
+    return await response.json()

@@ -1,8 +1,12 @@
 from dataclasses import field, dataclass
 from typing import List
+from uuid import uuid4
+
+from datetime import datetime
 
 from learning_hub.usecases.create_path import CreateAssignmentRequest, CreatePathRequest
 from learning_hub.usecases.create_user import CreateUserRequest
+from learning_hub.usecases.update_path import UpdatePathRequest, UpdateAssignmentRequest
 
 
 @dataclass
@@ -46,3 +50,22 @@ class CreateUserRequestBuilder:
             username=self.username,
             password=self.password,
             email=self.email)
+
+
+@dataclass
+class UpdatePathRequestBuilder(CreatePathRequestBuilder):
+    id: str = str(uuid4())
+    created_on: datetime = datetime.now()
+    updated_on: datetime = datetime.now()
+    assignments: List[UpdateAssignmentRequest] = field(default_factory=list)
+
+    def build(self):
+        return UpdatePathRequest(
+            id=self.id,
+            created_on=self.created_on,
+            updated_on=self.updated_on,
+            title=self.title,
+            author=self.author,
+            description=self.description,
+            categories=self.categories,
+            assignments=self.assignments)

@@ -1,7 +1,9 @@
 from aiohttp import web
+from datetime import datetime
 
 from learning_hub.apis.base_api import BaseAPI
 from learning_hub.usecases.create_path import CreatePathRequest, CreateAssignmentRequest
+from learning_hub.usecases.update_path import UpdatePathRequest, UpdateAssignmentRequest
 
 
 class PathsAPI(BaseAPI):
@@ -24,6 +26,38 @@ class PathsAPI(BaseAPI):
             return web.json_response(dict(message="Learning path not found"), status=404)
         return self.create_get_path_response(path)
 
+    async def update_path(self, request: web.Request) -> web.Response:
+        update_path = request.app.get("update_path")
+        user_id = request.get("user_id")
+        data = await request.json()
+        if user_id != data.get("author"):
+            return web.json_response(dict(message="Update Request Forbidden"), status=403)
+        update_path_request = self.update_path_request_from(data)
+        try:
+            result = await update_path.execute(update_path_request)
+        except ValueError as e:
+            return self.create_error_response(list(e.args[0]), 400)
+        if not result.path:
+            return web.json_response(dict(message="Learning path not found"), status=404)
+        return self.create_get_path_response(result.path)
+
+    @staticmethod
+    def update_path_request_from(data):
+        return UpdatePathRequest(
+            id=data.get("id", ""),
+            title=data.get("title", ""),
+            author=data.get("author", ""),
+            created_on=datetime.fromtimestamp(data.get("created_on", 0.0)),
+            updated_on=datetime.fromtimestamp(data.get("updated_on", 0.0)),
+            description=data.get("description", ""),
+            categories=data.get("categories", []),
+            assignments=[UpdateAssignmentRequest(
+                id=a.get("id", ""),
+                name=a.get("name", ""),
+                resource=a.get("resource", ""),
+                instructions=a.get("instructions", "")
+            ) for a in data.get("assignments", [])])
+
     @staticmethod
     def create_get_path_response(path):
         return web.json_response(dict(
@@ -40,7 +74,7 @@ class PathsAPI(BaseAPI):
                 resource=a.resource,
                 instructions=a.instructions)
                 for a in path.assignments],
-            status=200))
+            ), status=200)
 
     @staticmethod
     def create_path_request_from(data, user_id):
@@ -54,4 +88,5 @@ class PathsAPI(BaseAPI):
                 resource=a.get("resource", ""),
                 instructions=a.get("instructions", ""))
                 for a in data.get("assignments", [])])
+
 

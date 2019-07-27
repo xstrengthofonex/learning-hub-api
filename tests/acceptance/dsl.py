@@ -49,3 +49,11 @@ async def get_learning_path(client, token, path_id, status=200):
     assert response.status == status
     assert response.content_type == "application/json"
     return await response.json()
+
+
+async def update_learning_path(client, token, path, status=200):
+    headers = {'Authorization': f"Bearer {token}"}
+    response = await client.put(f"/paths/{path.get('id')}", headers=headers, json=path)
+    assert response.status == status
+    assert response.content_type == "application/json"
+    return await response.json()

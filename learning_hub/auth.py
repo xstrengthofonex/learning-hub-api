@@ -6,12 +6,13 @@ from aiohttp.web_middlewares import middleware
 import settings
 import jwt
 
-WHITELIST = ["/login", "/users"]
+WHITELIST_PATHS = ["/login", "/users", "/status"]
+ALLOWED_METHODS = ["POST", "PUT", "DELETE", "GET"]
 
 
 @middleware
 async def auth_middleware(request: web.Request, handler):
-    if request.path not in WHITELIST and request.method == "POST":
+    if request.path not in WHITELIST_PATHS and request.method in ALLOWED_METHODS:
         auth = request.app.get("auth")
         users = request.app.get("users")
         token = request.headers.get("Authorization")

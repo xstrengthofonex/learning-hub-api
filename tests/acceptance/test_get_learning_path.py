@@ -5,7 +5,6 @@ from tests.acceptance.dsl import (
 async def test_get_learning_path(client):
     user = await register_user(client)
     path = await create_learning_path(client, user.get("token"), title="My Path")
-    await create_participation(client, user.get("token"), path.get("pathId"))
     result = await get_learning_path(client, user.get("token"), path.get("pathId"))
     assert result.get("title") == "My Path"
 

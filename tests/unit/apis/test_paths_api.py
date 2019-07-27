@@ -46,11 +46,6 @@ def paths():
 
 
 @pytest.fixture
-def participations():
-    return Mock(Participations)
-
-
-@pytest.fixture
 def create_path():
     return Mock(CreatePath)
 
@@ -87,11 +82,10 @@ async def test_create_path_raises_400_if_request_data_is_invalid(create_path, us
     assert json.loads(response.text) == dict(errors=[message])
 
 
-async def test_get_path_returns_path_with_id(paths, participations):
+async def test_get_path_returns_path_with_id(paths):
     paths.find_by_id.return_value = PATH
-    participations.find_participations_for_path_id.return_value = [PARTICIPATION]
     mock_request = create_mock_request()
-    mock_request.app.get.side_effect = [paths, participations]
+    mock_request.app.get.side_effect = [paths]
     mock_request.match_info.get.return_value = PATH_ID
     paths_api = PathsAPI()
 
@@ -104,7 +98,6 @@ async def test_get_path_returns_path_with_id(paths, participations):
     assignment = PATH.assignments[0]
     assert result.get("id") == PATH.id
     assert result.get("title") == PATH.title
-    assert result.get("participants") == 1
     assert result.get("created_on") == PATH.created_on.timestamp()
     assert result.get("updated_on") == PATH.updated_on.timestamp()
     assert result.get("categories") == PATH.categories
@@ -113,11 +106,10 @@ async def test_get_path_returns_path_with_id(paths, participations):
              resource=assignment.resource, instructions=assignment.instructions)]
 
 
-async def test_get_path_returns_404_if_path_not_found(paths, participations):
+async def test_get_path_returns_404_if_path_not_found(paths):
     paths.find_by_id.return_value = None
-    participations.find_participations_for_path_id.return_value = None
     mock_request = create_mock_request()
-    mock_request.app.get.side_effect = [paths, participations]
+    mock_request.app.get.side_effect = [paths]
     mock_request.match_info.get.return_value = PATH_ID
     paths_api = PathsAPI()
 

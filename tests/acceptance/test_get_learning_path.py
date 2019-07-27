@@ -8,7 +8,6 @@ async def test_get_learning_path(client):
     await create_participation(client, user.get("token"), path.get("pathId"))
     result = await get_learning_path(client, user.get("token"), path.get("pathId"))
     assert result.get("title") == "My Path"
-    assert result.get("participants") == 1
 
 
 async def test_learning_path_does_not_exist(client):

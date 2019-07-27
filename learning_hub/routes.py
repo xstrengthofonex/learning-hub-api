@@ -23,7 +23,7 @@ async def setup_usecases(app: web.Application) -> None:
     app["create_participation"] = CreateParticipation(participations, paths)
     app["create_user"] = CreateUser(users)
     app["create_path"] = CreatePath(paths)
-    app["update_path"] = UpdatePath()
+    app["update_path"] = UpdatePath(paths)
 
 
 async def setup_routes(app: web.Application) -> None:

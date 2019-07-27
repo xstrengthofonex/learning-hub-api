@@ -200,7 +200,7 @@ async def test_update_path_returns_403_if_user_id_does_not_match_author(update_p
 
 
 async def test_update_path_returns_404_if_path_does_not_exist(update_path):
-    update_path.execute.return_value = UpdatePathResponse(path=None)
+    update_path.execute.side_effect = PathNotFound
     mock_request = create_mock_request(UPDATE_PATH_REQUEST_DATA)
     mock_request.get.return_value = USER_ID
     mock_request.app.get.side_effect = [update_path]

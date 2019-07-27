@@ -3,7 +3,7 @@ from datetime import datetime
 
 from learning_hub.apis.base_api import BaseAPI
 from learning_hub.usecases.create_path import CreatePathRequest, CreateAssignmentRequest
-from learning_hub.usecases.update_path import UpdatePathRequest, UpdateAssignmentRequest
+from learning_hub.usecases.update_path import UpdatePathRequest, UpdateAssignmentRequest, PathNotFound
 
 
 class PathsAPI(BaseAPI):
@@ -30,15 +30,15 @@ class PathsAPI(BaseAPI):
         update_path = request.app.get("update_path")
         user_id = request.get("user_id")
         data = await request.json()
+        update_path_request = self.update_path_request_from(data)
         if user_id != data.get("author"):
             return web.json_response(dict(message="Update Request Forbidden"), status=403)
-        update_path_request = self.update_path_request_from(data)
         try:
             result = await update_path.execute(update_path_request)
+        except PathNotFound:
+            return web.json_response(dict(message="Learning path not found"), status=404)
         except ValueError as e:
             return self.create_error_response(list(e.args[0]), 400)
-        if not result.path:
-            return web.json_response(dict(message="Learning path not found"), status=404)
         return self.create_get_path_response(result.path)
 
     @staticmethod
